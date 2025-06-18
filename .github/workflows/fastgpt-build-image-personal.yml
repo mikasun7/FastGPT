@@ -115,15 +115,17 @@ jobs:
 
       - name: Set image name and tag
         run: |
-          echo "Git_Tag=${{ needs.get-vars.outputs.docker_repo }}:${{ needs.get-vars.outputs.docker_tag }}" >> $GITHUB_ENV
-          echo "Git_Latest=${{ needs.get-vars.outputs.docker_repo }}:latest" >> $GITHUB_ENV
-    
-      - name: Create manifest list and push
-        working-directory: ${{ runner.temp }}/digests
+          echo "DOCKER_REPO_TAGGED=ghcr.io/${{ github.repository_owner }}/fastgpt:${{ github.sha }}" >> $GITHUB_ENV
+      - name: Build and publish image for main branch or tag push event
+        env:
+          DOCKER_REPO_TAGGED: ${{ env.DOCKER_REPO_TAGGED }}
         run: |
-          TAGS="$(echo -e "${Git_Tag}\n${Git_Latest}")"
-          for TAG in $TAGS; do
-            docker buildx imagetools create -t $TAG \
-              $(printf '${{ needs.get-vars.outputs.docker_repo }}@sha256:%s ' *)
-            sleep 5
-          done
+          docker buildx build \
+          --build-arg name=app \
+          --build-arg base_url=/fastai \
+          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/FastGPT" \
+          --label "org.opencontainers.image.description=fastgpt image" \
+          --push \
+          -t ${DOCKER_REPO_TAGGED} \
+          -f projects/app/Dockerfile \
+          .
