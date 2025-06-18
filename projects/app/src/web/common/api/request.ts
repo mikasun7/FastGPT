@@ -109,11 +109,8 @@ function checkRes(data: ResponseDataType) {
  */
 function responseError(err: any) {
   console.log('error->', '请求错误', err);
-  const isOutlinkPage = {
-    [`${subRoute}/chat/share`]: true,
-    [`${subRoute}/chat`]: true,
-    [`${subRoute}/login`]: true
-  }[window.location.pathname];
+  const outlinkPages = ['/chat/share', '/chat/team', '/login', '/chat'];
+  const isOutlinkPage = outlinkPages.map(getWebReqUrl).includes(window.location.pathname);
 
   const data = err?.response?.data || err;
 
