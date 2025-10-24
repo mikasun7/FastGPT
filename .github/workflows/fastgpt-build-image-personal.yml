@@ -120,12 +120,12 @@ jobs:
         env:
           DOCKER_REPO_TAGGED: ${{ env.DOCKER_REPO_TAGGED }}
         run: |
-          docker buildx build \
+          pwd && ls && docker buildx build \
           --build-arg name=app \
           --build-arg base_url=/fastai \
           --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/FastGPT" \
           --label "org.opencontainers.image.description=fastgpt image" \
           --push \
           -t ${DOCKER_REPO_TAGGED} \
-          -f projects/app/Dockerfile \
+          -f Dockerfile \
           .
